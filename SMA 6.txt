@@ -1,0 +1,67 @@
+SMA 6
+
+import dash
+from dash import html, dcc
+import pandas as pd
+from ntscraper import Nitter
+
+# Initialize Nitter scraper
+scraper = Nitter(0)
+
+# Function to fetch tweets
+def get_tweets(name, modes, no):
+    tweets = scraper.get_tweets(name, mode=modes, number=no)
+    final_tweets = []
+    for x in tweets["tweets"]:
+        data = [
+x["link"],
+            x["text"],
+            x["date"],
+            x["stats"]["likes"],
+            x["stats"]["comments"],
+        ]
+        final_tweets.append(data)
+        
+    dat = pd.DataFrame(
+        final_tweets, columns=["twitter_link", "text", "date", "likes", "comments"]
+    )
+    return dat
+
+# Fetch data
+data = get_tweets("World cup 2023", "term", 8)
+
+# Initialize Dash app
+app = dash.Dash(__name__)
+
+# Define layout
+app.layout = html.Div(
+    [
+        html.H1("Twitter Dashboard"),
+        dcc.Graph(
+            id="tweets-graph",
+            figure={
+    "data": [
+                    {"x": data["date"], "y": data["likes"], "type": "bar", "name": "Likes"},
+                    {"x": data["date"], "y": data["comments"], "type": "bar", "name": "Comments"},
+                ],
+                "layout": {"title": "Likes and Comments Over Time"},
+            },
+        ),
+        html.Table(
+            [
+                html.Thead(
+html.Tr(
+     [html.Th(col) for col in data.columns])),
+                html.Tbody(
+                    [
+                        html.Tr([html.Td(data.iloc[i][col]) for col in data.columns])
+                        for i in range(len(data))
+                    ]
+                ),
+            ]
+        ),
+    ]
+)
+# Run the app
+if __name__ == "__main__":
+    app.run_server(debug=True)
