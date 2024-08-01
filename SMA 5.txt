@@ -1,4 +1,5 @@
 SMA 5
+#Develop Structure based social media analytics model for any business
 
 import pandas as pd
 import networkx as nx
