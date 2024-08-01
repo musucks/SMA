@@ -1,4 +1,4 @@
-#SMA 9
+SMA 9
 #TWITER CONVO.
 
 import networkx as nx
